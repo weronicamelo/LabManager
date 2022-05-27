@@ -13,13 +13,13 @@ var modelAction = args[1];
 
 if(modelName == "Computer")
 {
-    var ComputerRepository = new ComputerRepository(databaseConfig);
+    var computerRepository = new ComputerRepository(databaseConfig);
 
     if(modelAction == "List")
     {
         Console.WriteLine("Computer List");
 
-        foreach(var computer in ComputerRepository.GetAll())
+        foreach(var computer in computerRepository.GetAll())
         {
             Console.WriteLine($"{computer.Id}, {computer.Ram}, {computer.Processor}");
         }
@@ -33,7 +33,14 @@ if(modelName == "Computer")
         var processor = args[4]; 
         var computer = new Computer(id, ram, processor);
 
-        ComputerRepository.Save(computer);
+        computerRepository.Save(computer);
+    }
+
+    if(modelAction == "Delete")
+    {
+        Console.WriteLine("Computer Delete");
+        var id = Convert.ToInt32(args[2]);
+        computerRepository.Delete(id);
     }
 }
 
