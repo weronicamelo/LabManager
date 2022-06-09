@@ -72,6 +72,7 @@ if(modelName == "Computer")
     {
         Console.WriteLine("Computer Show");
         var id = Convert.ToInt32(args[2]);
+
         if(computerRepository.ExistsById(id))
         {
             var computer = computerRepository.GetById(id);
@@ -85,21 +86,17 @@ if(modelName == "Computer")
 
 if(modelName == "Lab")
 {
+     Console.WriteLine("Lab List");
+    var labRepository = new LabRepository(databaseConfig);
+
     if(modelAction == "List")
     {
-        Console.WriteLine("Lab List");
-        var connection = new SqliteConnection("Data Source=database.db");
-        connection.Open();
+        var labs = labRepository.GetAll();
 
-        var command = connection.CreateCommand();
-        command.CommandText = "SELECT * FROM Labs";
-
-        var reader = command.ExecuteReader();
-        while(reader.Read())
+        foreach(var lab in labs)
         {
-            Console.WriteLine("{0}, {1}, {2}, {3}", reader.GetInt32(0), reader.GetString(1), reader.GetString(2), reader.GetString(3));
-        }
-        connection.Close();
+            Console.WriteLine($"{lab.Id}, {lab.Number}, {lab.Name}, {lab.Block}");
+        }    
     }
 
     if(modelAction == "New")
@@ -109,18 +106,57 @@ if(modelName == "Lab")
         var number = args[3];
         var name = args[4];
         var block = args[5];
+        var lab = new Lab(id, number, name, block);
 
-        var connection = new SqliteConnection("Data Source=database.db");
-        connection.Open();
+        labRepository.Save(lab);
+    }
 
-        var command = connection.CreateCommand();
-        command.CommandText = "INSERT INTO Labs VALUES ($id, $number, $name, $block)";
-        command.Parameters.AddWithValue("$id", id);
-        command.Parameters.AddWithValue("$number", number);
-        command.Parameters.AddWithValue("$name", name);
-        command.Parameters.AddWithValue("$block", block);
+    if(modelAction == "Delete")
+    {
+        Console.WriteLine("Delete");
+        var id = Convert.ToInt32(args[2]);
 
-        command.ExecuteNonQuery();
-        connection.Close();
+        if(labRepository.ExistsById(id))
+        {
+            labRepository.Delete(id);
+        } 
+        else {
+            Console.WriteLine($"Lab com id {id} não existe");
+        }
+    }
+
+     if(modelAction == "Update")
+    {
+        Console.WriteLine("Update Lab");
+        var id = Convert.ToInt32(args[2]);
+
+        if(labRepository.ExistsById(id))
+        {
+            var number = args[3];
+            var name = args[4]; 
+            var block = args[5];
+        
+            var lab = new Lab(id, number, name, block);
+
+            labRepository.Update(lab);
+        } 
+        else {
+            Console.WriteLine($"Lab com id {id} não existe");
+        }
+    }
+
+     if(modelAction == "Show")
+    {
+        Console.WriteLine("Show Lab");
+        var id = Convert.ToInt32(args[2]);
+
+        if(labRepository.ExistsById(id))
+        {
+            var lab = labRepository.GetById(id);
+            Console.WriteLine($"{lab.Id}, {lab.Number}, {lab.Name}, {lab.Block}"); 
+        } 
+        else {
+            Console.WriteLine($"Lab com id {id} não existe");
+        }
     }
 }
