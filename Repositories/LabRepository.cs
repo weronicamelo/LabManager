@@ -1,6 +1,7 @@
 using Microsoft.Data.Sqlite;
 using LabManager.Models;
 using LabManager.Database;
+using Dapper;
 
 namespace LabManager.Repositories;
 
@@ -15,21 +16,10 @@ class LabRepository
     
     public List<Lab> GetAll()
     {
-        var labs = new List<Lab>();
         var connection = new SqliteConnection(_databaseConfig.ConnectionString);
-
         connection.Open();
 
-        var command = connection.CreateCommand();
-        command.CommandText = "SELECT * FROM Labs;"; 
-            
-        var reader = command.ExecuteReader();
-
-        while (reader.Read())
-        {
-            var lab = ReaderToLab(reader);
-            labs.Add(lab); 
-        }
+        var labs = connection.Query<Lab>("SELECT * FROM Labs;").ToList();
 
         connection.Close();
         return labs;
@@ -40,16 +30,8 @@ class LabRepository
         var connection = new SqliteConnection(_databaseConfig.ConnectionString);
         connection.Open();
 
-        var command = connection.CreateCommand();
-        command.CommandText = "INSERT INTO Labs VALUES($id, $number, $name, $block)"; 
-
-        command.Parameters.AddWithValue("$id", lab.Id);
-        command.Parameters.AddWithValue("$number", lab.Number);
-        command.Parameters.AddWithValue("name", lab.Name);
-        command.Parameters.AddWithValue("$block", lab.Block);
-
-            
-        command.ExecuteNonQuery();
+        connection.Execute("INSERT INTO Labs VALUES(@Id, @Number, @Name, @Block);", lab);
+        
         connection.Close();
 
         return lab;
@@ -61,13 +43,8 @@ class LabRepository
         connection.Open();
 
         var command = connection.CreateCommand();
-        command.CommandText = "SELECT * FROM Labs WHERE id = $id"; 
-        command.Parameters.AddWithValue("$id", id);
 
-        var reader = command.ExecuteReader();
-        reader.Read();
-
-        var lab = ReaderToLab(reader);
+        var lab = connection.QuerySingle<Lab>("SELECT * FROM Labs WHERE id = @Id;", new{Id = id});
 
         connection.Close();
         return lab;
@@ -78,11 +55,8 @@ class LabRepository
         var connection = new SqliteConnection(_databaseConfig.ConnectionString);
         connection.Open();
 
-        var command = connection.CreateCommand();
-        command.CommandText = "DELETE FROM Labs WHERE id = $id"; 
-        command.Parameters.AddWithValue("$id", id);
-     
-        command.ExecuteNonQuery();
+        connection.Execute("DELETE FROM Labs WHERE id = @Id;", new{Id = id});
+    
         connection.Close();
     }
 
@@ -91,22 +65,15 @@ class LabRepository
         var connection = new SqliteConnection(_databaseConfig.ConnectionString);
         connection.Open();
 
-        var command = connection.CreateCommand();
-        command.CommandText = @"
+        connection.Execute(@"
         Update Labs 
         SET 
-            number = $number,
-            name = $name,
-            block = $block
-        WHERE id = $id
-        "; 
+            number = @Number,
+            name = @Name,
+            block = @Block
+        WHERE id = @Id;
+        ", lab); 
 
-        command.Parameters.AddWithValue("$id", lab.Id);
-        command.Parameters.AddWithValue("$number", lab.Number);
-        command.Parameters.AddWithValue("$name", lab.Name);
-        command.Parameters.AddWithValue("$block", lab.Block);
-
-        command.ExecuteNonQuery();
         connection.Close();
 
         return lab;
@@ -117,19 +84,15 @@ class LabRepository
         var connection = new SqliteConnection(_databaseConfig.ConnectionString);
         connection.Open();
 
-        var command = connection.CreateCommand();
-        command.CommandText = "SELECT COUNT(id) FROM Labs WHERE id = $id"; 
-        command.Parameters.AddWithValue("$id", id);
-
-        var result = Convert.ToBoolean(command.ExecuteScalar());
+        var result = Convert.ToBoolean(connection.ExecuteScalar("SELECT COUNT(id) FROM Labs WHERE id = @Id,", new{Id = id}));
 
         return result;
     }
 
-    private Lab ReaderToLab(SqliteDataReader  reader)
-    {
-        var lab = new Lab(reader.GetInt32(0), reader.GetString(1), reader.GetString(2),  reader.GetString(3));
+    //private Lab ReaderToLab(SqliteDataReader  reader)
+    //{
+       // var lab = new Lab(reader.GetInt32(0), reader.GetString(1), reader.GetString(2),  reader.GetString(3));
 
-        return lab;
-    }
+        //return lab;
+    //}
 }

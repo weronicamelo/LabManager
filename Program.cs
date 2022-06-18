@@ -19,7 +19,8 @@ if(modelName == "Computer")
     {
         Console.WriteLine("Computer List");
 
-        foreach(var computer in computerRepository.GetAll())
+        var computers = computerRepository.GetAll();
+        foreach(var computer in computers)
         {
             Console.WriteLine($"{computer.Id}, {computer.Ram}, {computer.Processor}");
         }
@@ -103,7 +104,7 @@ if(modelName == "Lab")
     {
         Console.WriteLine("Lab New");
         var id = Convert.ToInt32(args[2]);
-        var number = args[3];
+        var number = Convert.ToInt32(args[3]);
         var name = args[4];
         var block = args[5];
         var lab = new Lab(id, number, name, block);
@@ -129,13 +130,12 @@ if(modelName == "Lab")
     {
         Console.WriteLine("Update Lab");
         var id = Convert.ToInt32(args[2]);
-
+        var number = Convert.ToInt32(args[3]);
+        var name = args[4]; 
+        var block = args[5];
+       
         if(labRepository.ExistsById(id))
         {
-            var number = args[3];
-            var name = args[4]; 
-            var block = args[5];
-        
             var lab = new Lab(id, number, name, block);
 
             labRepository.Update(lab);

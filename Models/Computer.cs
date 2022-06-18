@@ -12,4 +12,11 @@ class Computer
         Ram = ram;
         Processor = processor;
     }
+
+    public Computer()
+    {
+        Id = 0;
+        Ram = "";
+        Processor = "";
+    }
 }
