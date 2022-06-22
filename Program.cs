@@ -87,11 +87,11 @@ if(modelName == "Computer")
 
 if(modelName == "Lab")
 {
-     Console.WriteLine("Lab List");
     var labRepository = new LabRepository(databaseConfig);
 
     if(modelAction == "List")
     {
+        Console.WriteLine("Lab List");
         var labs = labRepository.GetAll();
 
         foreach(var lab in labs)
