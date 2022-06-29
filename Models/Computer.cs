@@ -6,17 +6,14 @@ class Computer
     public string Ram {get; set; }  
     public string Processor {get; set; }
 
+     public Computer() {}
+
     public Computer(int id, string ram, string processor)
     {
         Id = id;
         Ram = ram;
         Processor = processor;
     }
-
-    public Computer()
-    {
-        Id = 0;
-        Ram = "";
-        Processor = "";
-    }
 }
+
+   
